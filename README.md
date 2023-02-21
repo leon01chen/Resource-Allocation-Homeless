@@ -9,8 +9,8 @@ The `Data` folder contains the following items:
 - Percent of First Time Homeless in CoCs
 - Percent of Leavers/Stayers who Increased Income
 - Percent Returns to Homelessness (6, 12, 24 months)
-- Successful Exits from Housing Services (ES, SH, TH, RRH)
-- Successful Exits from PH
-- Successful Street Outreach to TH, PH
+- Percent Successful Exits from Housing Services (ES, SH, TH, RRH)
+- Percent Successful Exits from PH
+- Percent Successful Street Outreach to TH, PH
 
 The `Cleaned Data` folder contains cleaned excel files of the items in data. Some states/territories (like American Samoa) did not collect any data over the years, even though it was included in the PIT files. The cleaned files remove these types of one-off data points.
