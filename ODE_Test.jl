@@ -17,13 +17,10 @@ sampling = 1
 model_params = [sqrt(0.03), sqrt(0.09), sqrt(0.09), sqrt(0.05), sqrt(0.01159), sqrt(0.05), sqrt(0.05), sqrt(0.05)]
 
 # take square root of all the numbers and then square them in the model
-# alpha_sr = sqrt(0.43)
-# gamma_sr = sqrt(0.39)
-# delta_sr = sqrt(0.1)
-# sigma_sr = sqrt(0.9)
 mu_sr = sqrt(0.1)
 
 function model(du, u, p, t)
+    #unsheltered, emergency shelter, transitional housing, safe havens, exits 
     U, E, T, S, E_1 = u
     
     alpha_sr, delta_sr, gamma_sr, sigma_sr, phi_sr, epsilon_sr, beta_sr, zeta_sr= p
@@ -41,7 +38,7 @@ states = ["AK", "AL", "AR"] #, "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "
 # "NY", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VI", "VT", "WA", "WI", "WV", "WY"]
 global cat = Array{Float64}(undef, 8, 0)
 for i in 1:length(states)
-    data = readdlm("Data/info_" * states[i] * ".csv", ',', Float64)
+    data = readdlm("ODE Data/info_" * states[i] * ".csv", ',', Float64)
     #print(data)
     Q = ifelse.(data .> 0, 1, data)
     #print(Q)
@@ -84,7 +81,7 @@ for i in 1:length(states)
         scatter!(pl,tgrid, data[:,5], color=:brown, label = "E_1")
         xlabel!(pl,"Time")
         ylabel!(pl,"Population")
-        savefig(pl, "Figs/fitdyn_" * st * ".pdf")
+        savefig(pl, "ODE Figs/odefit_" * st * ".pdf")
         display(pl)
         # return(Array(sol_fit))
     end
@@ -113,3 +110,4 @@ for i in 1:length(states)
     global cat = hcat(cat, result) 
     plotFit(res_norm.minimizer, u0, states[i])
 end
+CSV.write("ODE_state_parameters.csv", Tables.table(cat), writeheader = true, header = states)
