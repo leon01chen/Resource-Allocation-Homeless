@@ -8,10 +8,10 @@ Code adapted from Joyce Luo: https://github.com/joyceluo1/mip_opioid
 Fits model parameters using neural ODEs for a set of US states.
 =#
 
-using DifferentialEquations, Lux, Optim, Optimization, OptimizationOptimJL, DiffEqFlux, Plots, CSV, DataFrames, DelimitedFiles, Sundials, Tables
+using CSV, DifferentialEquations, Lux, Optim, Optimization, OptimizationOptimJL, DiffEqFlux, Plots, CSV, DataFrames, DelimitedFiles, Sundials, Tables
 
 tstart = 0.0
-tend = 6.0
+tend = 12.0
 sampling = 1
 
 model_params = [sqrt(0.03), sqrt(0.09), sqrt(0.09), sqrt(0.05), sqrt(0.01159), sqrt(0.05), sqrt(0.05), sqrt(0.05)]
@@ -33,12 +33,15 @@ function model(du, u, p, t)
 
 end
 
-states = ["AK", "AL", "AR"] #, "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN",
-# "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV",
-# "NY", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VI", "VT", "WA", "WI", "WV", "WY"]
+states = ["AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE","FL", "GA", "HI", "IA","IL", "IN", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV",
+"NY", "OH", "OK", "OR", "PA", "PR", "RI","SD", "TN", "TX", "UT", "VA", "WA", "WI", "WV", "WY"]
+# Larger maxiters error: "ID", "VT"
+# Long eval time: "KS"
+# instability error: SC
 global cat = Array{Float64}(undef, 8, 0)
 for i in 1:length(states)
-    data = readdlm("ODE Data/info_" * states[i] * ".csv", ',', Float64)
+    #data = readdlm("ODE Data/info_" * states[i] * ".csv", ',', Float64)
+    data = Array(CSV.read(raw"ODE Data/info_" * states[i] * ".csv", DataFrame, types=Float64, header=false))
     #print(data)
     Q = ifelse.(data .> 0, 1, data)
     #print(Q)
@@ -80,7 +83,7 @@ for i in 1:length(states)
         scatter!(pl,tgrid, data[:,4], color=:pink, label = "S")
         scatter!(pl,tgrid, data[:,5], color=:brown, label = "E_1")
         xlabel!(pl,"Time")
-        ylabel!(pl,"Population")
+        ylabel!(pl,"Point-in-Time Count")
         savefig(pl, "ODE Figs/odefit_" * st * ".pdf")
         display(pl)
         # return(Array(sol_fit))
