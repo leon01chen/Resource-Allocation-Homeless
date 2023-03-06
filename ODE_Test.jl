@@ -14,31 +14,36 @@ tstart = 0.0
 tend = 12.0
 sampling = 1
 
-model_params = [sqrt(0.03), sqrt(0.09), sqrt(0.09), sqrt(0.05), sqrt(0.01159), sqrt(0.05), sqrt(0.05), sqrt(0.05)]
+#model_params = [sqrt(0.3), sqrt(0.32), sqrt(0.175), sqrt(0.1), sqrt(0.05), sqrt(0.05), sqrt(0.05), sqrt(0.05)]
+model_params = [sqrt(0.32), sqrt(0.175), sqrt(0.1), sqrt(0.05), sqrt(0.05), sqrt(0.05)]
 
 # take square root of all the numbers and then square them in the model
-mu_sr = sqrt(0.1)
+mu_sr = sqrt(0.4)
 
 function model(du, u, p, t)
     #unsheltered, emergency shelter, transitional housing, safe havens, exits 
     U, E, T, S, E_1 = u
     
-    alpha_sr, delta_sr, gamma_sr, sigma_sr, phi_sr, epsilon_sr, beta_sr, zeta_sr= p
- 
-    du[1] = (alpha_sr^2)*U - (delta_sr^2)*U - (gamma_sr^2)*U - (sigma_sr^2)*U + (mu_sr^2)*E_1
+    #alpha_sr, delta_sr, gamma_sr, sigma_sr, phi_sr, epsilon_sr, beta_sr, zeta_sr= p
+    delta_sr, gamma_sr, sigma_sr, phi_sr, epsilon_sr, zeta_sr= p
+
+    #du[1] = (alpha_sr^2)*U - (delta_sr^2)*U - (gamma_sr^2)*U - (sigma_sr^2)*U + (mu_sr^2)*E_1
+    du[1] =  -(delta_sr^2)*U - (gamma_sr^2)*U - (sigma_sr^2)*U + (mu_sr^2)*E_1
     du[2] = (delta_sr^2)*U - (phi_sr^2)*E
     du[3] = (gamma_sr^2)*U - (epsilon_sr^2)*T
-    du[4] = (beta_sr^2)*U - (zeta_sr^2)*S
+    du[4] = (sigma_sr^2)*U - (zeta_sr^2)*S
     du[5] = (phi_sr^2)*E + (epsilon_sr^2)*T + (zeta_sr^2)*S - (mu_sr^2)*E_1
 
 end
 
-states = ["AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE","FL", "GA", "HI", "IA","IL", "IN", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV",
-"NY", "OH", "OK", "OR", "PA", "PR", "RI","SD", "TN", "TX", "UT", "VA", "WA", "WI", "WV", "WY"]
-# Larger maxiters error: "ID", "VT"
-# Long eval time: "KS"
-# instability error: SC
-global cat = Array{Float64}(undef, 8, 0)
+states = ["AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE","FL", "GA", "HI","IL", "IN", "KY", "LA", 
+"MD", "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "OH", "OK", "OR", 
+"PA", "PR", "RI","SD", "TN", "TX", "UT", "VA", "WA", "WI", "WV", "WY"]
+# Larger maxiters error: "ID", "VT", "MA", "NY"
+# Extremely long computation time: "KS"
+# instability error: "SC", "IA"
+#global cat = Array{Float64}(undef, 8, 0)
+global cat = Array{Float64}(undef, 6, 0)
 for i in 1:length(states)
     #data = readdlm("ODE Data/info_" * states[i] * ".csv", ',', Float64)
     data = Array(CSV.read(raw"ODE Data/info_" * states[i] * ".csv", DataFrame, types=Float64, header=false))
@@ -91,7 +96,8 @@ for i in 1:length(states)
 
     
     function train_model()
-        pguess = [sqrt(0.3), sqrt(0.9), sqrt(0.19), sqrt(0.5), sqrt(0.01159), sqrt(0.5), sqrt(0.5), sqrt(0.5)]
+        #pguess = [sqrt(0.3), sqrt(0.32), sqrt(0.175), sqrt(0.1), sqrt(0.05), sqrt(0.05), sqrt(0.05), sqrt(0.05)]
+        pguess = [sqrt(0.32), sqrt(0.175), sqrt(0.1), sqrt(0.05), sqrt(0.05), sqrt(0.05)]
     #     println("Losses (every 50 iters):")
     #     println("$(loss_adjoint(pguess)[1])")
         #Train the ODE
